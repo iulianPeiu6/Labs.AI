@@ -16,12 +16,13 @@ class Constants:
         return "M"
 
 
-class SolutionStage:
+class Stage:
 
     def __init__(self, n):
         self.couples = []
         self.all_men = []
         self.all_women = []
+        self.boat_location = Constants.left_bank()
 
         for index in range(n):
             current_couple = Couple(index, Constants.left_bank())
@@ -48,6 +49,9 @@ class SolutionStage:
         if person.location == to_bank:
             print("ERR\tCan\'t move a person from a bank to the same bank")
             return False
+        if self.boat_location != person.location:
+            print("ERR\tCan\'t move a person from a bank where the boat is not present")
+            return False
         person.location = to_bank
         return True
 
@@ -58,7 +62,7 @@ class SolutionStage:
             if self.are_men_on_location(couple.woman.location):
                 return False
         return True
-
+    
     def are_men_on_location(self, location):
         locations = [i.location for i in self.all_men]
         if location in locations:
@@ -82,10 +86,16 @@ class Person:
         return f"({ self.genre }, { self.location })"
 
 
+class Problem:
+    def __init__(self, stage):
+        self.stage = stage
+
+
 if __name__ == '__main__':
-    solution = SolutionStage(2)
+    solution = Stage(2)
     solution.show()
     print(solution.is_valid())
+    solution.move_person(solution.couples[0].woman, Constants.right_bank())
     solution.move_person(solution.couples[0].man, Constants.right_bank())
     print(solution.is_valid())
     solution.show()
