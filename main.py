@@ -1,6 +1,8 @@
 import copy
 import sys
 
+all_stages = []
+
 
 class Constants:
     @staticmethod
@@ -20,6 +22,13 @@ class Constants:
         return "M"
 
 
+def exists(current_stage):
+    for stage in all_stages:
+        if stage.equals(current_stage):
+            return True
+    return False
+
+
 class Stage:
 
     def __init__(self, n):
@@ -36,6 +45,16 @@ class Stage:
             self.people.insert(index, current_couple.woman)
             self.all_men.insert(index, current_couple.man)
             self.all_women.insert(index, current_couple.woman)
+
+    def equals(self, stage):
+        if stage.boat_location != self.boat_location:
+            return False;
+        for [index, couple] in enumerate(self.couples):
+            if couple.man.location != stage.couples[index].man.location:
+                return False
+            if couple.woman.location != stage.couples[index].woman.location:
+                return False
+        return True
 
     @staticmethod
     def show(stage):
@@ -138,42 +157,99 @@ class Person:
 
 
 def solve_via_bk(current_stage, solution):
+    if exists(current_stage):
+        return
+    all_stages.append(current_stage)
     print(solution)
     if Stage.is_final(current_stage):
-        print("am gasit o taticule")
+        print("Found it:")
         print(solution)
         sys.exit()
+
+    destination = Constants.left_bank()
     if current_stage.boat_location == Constants.left_bank():
-        people_on_left_bank = []
-        for person in current_stage.people:
-            if person.location == Constants.left_bank():
-                people_on_left_bank.append(person)
-        for first_person in people_on_left_bank:
-            for second_person in people_on_left_bank:
-                if first_person == second_person:
-                    continue
-                move_result = current_stage.move2(current_stage, first_person, second_person, Constants.right_bank())
-                Stage.show(move_result[1])
-                if move_result[0]:
-                    new_solution = list(solution)
-                    new_solution.append(f"Move person { first_person } to { Constants.right_bank() }")
-                    new_solution.append(f"Move person { second_person } to { Constants.right_bank() }")
-                    solve_via_bk(move_result[1], new_solution)
-    else:
-        people_on_right_bank = []
-        for person in current_stage.people:
-            if person.location == Constants.right_bank():
-                people_on_right_bank.append(person)
-        for person in people_on_right_bank:
-            move_result = current_stage.move1(current_stage, person, Constants.left_bank())
+        destination = Constants.right_bank()
+
+    people_on_current_bank = []
+    for person in current_stage.people:
+        if person.location == current_stage.boat_location:
+            people_on_current_bank.append(person)
+    for first_person in people_on_current_bank:
+        for second_person in people_on_current_bank:
+            if first_person == second_person:
+                continue
+            move_result = current_stage.move2(current_stage, first_person, second_person, destination)
             Stage.show(move_result[1])
             if move_result[0]:
                 new_solution = list(solution)
-                new_solution.append(f"Move person { person } to {Constants.left_bank()}")
+                new_solution.append(f"Move person {first_person} to {destination}")
+                new_solution.append(f"Move person {second_person} to {destination}")
                 solve_via_bk(move_result[1], new_solution)
+
+    people_on_current_bank_2 = []
+    for person in current_stage.people:
+        if person.location == current_stage.boat_location:
+            people_on_current_bank_2.append(person)
+    for person in people_on_current_bank_2:
+        move_result_2 = current_stage.move1(current_stage, person, destination)
+        Stage.show(move_result_2[1])
+        if move_result_2[0]:
+            new_solution = list(solution)
+            new_solution.append(f"Move person {person} to {destination}")
+            solve_via_bk(move_result_2[1], new_solution)
+
+
+def solve_via_bfs(current_stage, solution):
+    if exists(current_stage):
+        return
+    all_stages.append(current_stage)
+    print(solution)
+    if Stage.is_final(current_stage):
+        print("Found it:")
+        print(solution)
+        sys.exit()
+
+    future_stages = []
+    future_solutions = []
+    destination = Constants.left_bank()
+    if current_stage.boat_location == Constants.left_bank():
+        destination = Constants.right_bank()
+
+    people_on_current_bank = []
+    for person in current_stage.people:
+        if person.location == current_stage.boat_location:
+            people_on_current_bank.append(person)
+    for first_person in people_on_current_bank:
+        for second_person in people_on_current_bank:
+            if first_person == second_person:
+                continue
+            move_result = current_stage.move2(current_stage, first_person, second_person, destination)
+            Stage.show(move_result[1])
+            if move_result[0]:
+                new_solution = list(solution)
+                new_solution.append(f"Move person {first_person} to {destination}")
+                new_solution.append(f"Move person {second_person} to {destination}")
+                future_stages.append(move_result[1])
+                future_solutions.append(new_solution)
+
+    people_on_current_bank_2 = []
+    for person in current_stage.people:
+        if person.location == current_stage.boat_location:
+            people_on_current_bank_2.append(person)
+    for person in people_on_current_bank_2:
+        move_result_2 = current_stage.move1(current_stage, person, destination)
+        Stage.show(move_result_2[1])
+        if move_result_2[0]:
+            new_solution_2 = list(solution)
+            new_solution_2.append(f"Move person {person} to {destination}")
+            future_stages.append(move_result_2[1])
+            future_solutions.append(new_solution_2)
+
+    for index in range(len(future_stages)):
+        solve_via_bfs(future_stages[index], future_solutions[index])
 
 
 if __name__ == '__main__':
-    problem = Stage(3)
+    problem = Stage(5)
     Stage.show(problem)
-    solve_via_bk(problem, [])
+    solve_via_bfs(problem, [])
