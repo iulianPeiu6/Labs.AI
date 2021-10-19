@@ -138,6 +138,10 @@ class Stage:
             return True
         return False
 
+    @staticmethod
+    def get_people_on_left_bank(stage):
+        return len([person for person in stage.people if person.location == Constants.left_bank()])
+
 
 class Couple:
     def __init__(self, _id, location):
@@ -156,6 +160,14 @@ class Person:
         return f"({ self.id }, { self.genre }, { self.location })"
 
 
+def get_people_on_current_bank(stage):
+    people_on_current_bank = []
+    for person in stage.people:
+        if person.location == stage.boat_location:
+            people_on_current_bank.append(person)
+    return people_on_current_bank
+
+
 def solve_via_bk(current_stage, solution):
     if exists(current_stage):
         return
@@ -170,10 +182,7 @@ def solve_via_bk(current_stage, solution):
     if current_stage.boat_location == Constants.left_bank():
         destination = Constants.right_bank()
 
-    people_on_current_bank = []
-    for person in current_stage.people:
-        if person.location == current_stage.boat_location:
-            people_on_current_bank.append(person)
+    people_on_current_bank = get_people_on_current_bank(current_stage)
     for first_person in people_on_current_bank:
         for second_person in people_on_current_bank:
             if first_person == second_person:
@@ -186,10 +195,7 @@ def solve_via_bk(current_stage, solution):
                 new_solution.append(f"Move person {second_person} to {destination}")
                 solve_via_bk(move_result[1], new_solution)
 
-    people_on_current_bank_2 = []
-    for person in current_stage.people:
-        if person.location == current_stage.boat_location:
-            people_on_current_bank_2.append(person)
+    people_on_current_bank_2 = get_people_on_current_bank(current_stage)
     for person in people_on_current_bank_2:
         move_result_2 = current_stage.move1(current_stage, person, destination)
         Stage.show(move_result_2[1])
@@ -215,10 +221,7 @@ def solve_via_bfs(current_stage, solution):
     if current_stage.boat_location == Constants.left_bank():
         destination = Constants.right_bank()
 
-    people_on_current_bank = []
-    for person in current_stage.people:
-        if person.location == current_stage.boat_location:
-            people_on_current_bank.append(person)
+    people_on_current_bank = get_people_on_current_bank(current_stage)
     for first_person in people_on_current_bank:
         for second_person in people_on_current_bank:
             if first_person == second_person:
@@ -232,10 +235,7 @@ def solve_via_bfs(current_stage, solution):
                 future_stages.append(move_result[1])
                 future_solutions.append(new_solution)
 
-    people_on_current_bank_2 = []
-    for person in current_stage.people:
-        if person.location == current_stage.boat_location:
-            people_on_current_bank_2.append(person)
+    people_on_current_bank_2 = get_people_on_current_bank(current_stage)
     for person in people_on_current_bank_2:
         move_result_2 = current_stage.move1(current_stage, person, destination)
         Stage.show(move_result_2[1])
@@ -249,7 +249,94 @@ def solve_via_bfs(current_stage, solution):
         solve_via_bfs(future_stages[index], future_solutions[index])
 
 
+all_nodes = []  # (stage, solution, depth)
+
+
+def get_next_node(depth):
+    next_node = None
+    best_coef = None
+    for node in all_nodes:
+        if exists(node[0]):
+            continue
+        h_coef = Stage.get_people_on_left_bank(node[0])
+        g_coef = depth
+        coef = h_coef + g_coef
+        if next_node is None:
+            next_node = node
+            best_coef = coef
+        if coef < best_coef:
+            next_node = node
+            best_coef = coef
+    return next_node
+
+
+def solve_via_a_star(current_stage, solution, depth):
+    if exists(current_stage):
+        return
+    all_stages.append(current_stage)
+    print(depth)
+    print(solution)
+    if Stage.is_final(current_stage):
+        print("Found it:")
+        print(solution)
+        sys.exit()
+
+    destination = Constants.left_bank()
+    if current_stage.boat_location == Constants.left_bank():
+        destination = Constants.right_bank()
+
+    people_on_current_bank = get_people_on_current_bank(current_stage)
+    for first_person in people_on_current_bank:
+        for second_person in people_on_current_bank:
+            if first_person == second_person:
+                continue
+            move_result = current_stage.move2(current_stage, first_person, second_person, destination)
+            Stage.show(move_result[1])
+            if move_result[0]:
+                new_solution = list(solution)
+                new_solution.append(f"Move person {first_person} to {destination}")
+                new_solution.append(f"Move person {second_person} to {destination}")
+                all_nodes.append([move_result[1], new_solution, depth + 1])
+
+    people_on_current_bank_2 = get_people_on_current_bank(current_stage)
+    for person in people_on_current_bank_2:
+        move_result_2 = current_stage.move1(current_stage, person, destination)
+        Stage.show(move_result_2[1])
+        if move_result_2[0]:
+            new_solution_2 = list(solution)
+            new_solution_2.append(f"Move person {person} to {destination}")
+            all_nodes.append([move_result_2[1], new_solution_2, depth + 1])
+
+    for node in all_nodes:
+        next_node = get_next_node(depth)
+        solve_via_a_star(next_node[0], next_node[1], next_node[2])
+
+
+
+def next_neighbour(stage, solution):
+    new_stage = stage.copy()
+
+
+
+    return new_stage
+
+
+def solve_via_hc(starting_stage):
+    num_of_restarts = 10
+
+    for iteration in range(num_of_restarts):
+        stage = starting_stage.copy()
+        new_stage = next_neighbour(stage)
+        solution = []
+        while new_stage is not None:
+            if Stage.is_valid(new_stage):
+                return solution
+            stage = new_stage
+            new_stage = next_neighbour(stage, solution)
+
+
 if __name__ == '__main__':
-    problem = Stage(5)
+    problem = Stage(4)
     Stage.show(problem)
-    solve_via_bfs(problem, [])
+    #solve_via_bfs(problem, [])
+    solve_via_a_star(problem, [], 0)
