@@ -406,8 +406,8 @@ def solve_via_hc(starting_stage):
 
 
 if __name__ == '__main__':
-    n = input("n=")
-    problem = Stage(2)
+    n = int(input("n="))
+    problem = Stage(n)
     Stage.show(problem)
     method = input("method= ")
     if method == "bk":
