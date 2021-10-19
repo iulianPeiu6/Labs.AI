@@ -1,5 +1,6 @@
 import copy
 import sys
+import random
 
 all_stages = []
 
@@ -312,31 +313,101 @@ def solve_via_a_star(current_stage, solution, depth):
         solve_via_a_star(next_node[0], next_node[1], next_node[2])
 
 
+def try_greedy_right_move(stage):
+    for first_person in stage.people:
+        for second_person in stage.people:
+            if first_person != second_person:
+                move_result = Stage.move2(stage, first_person, second_person, Constants.right_bank())
+                if move_result[0]:
+                    hc_solution.append(f"Move person {first_person} to right bank")
+                    hc_solution.append(f"Move person {second_person} to right bank")
+                    stage = move_result[1]
+                    return True, stage
+    return False, stage
 
-def next_neighbour(stage, solution):
-    new_stage = stage.copy()
+
+def try_not_greedy_right_move(stage):
+    for person in stage.people:
+        move_result = Stage.move1(stage, person, Constants.right_bank())
+        if move_result[0]:
+            hc_solution.append(f"Move person {person} to right bank")
+            stage = move_result[1]
+            return True, stage
+    return False, stage
 
 
+def try_not_greedy_left_move(stage):
+    for first_person in stage.people:
+        for second_person in stage.people:
+            if first_person != second_person:
+                move_result = Stage.move2(stage, first_person, second_person, Constants.left_bank())
+                if move_result[0]:
+                    hc_solution.append(f"Move person {first_person} to left bank")
+                    hc_solution.append(f"Move person {second_person} to left bank")
+                    stage = move_result[1]
+                    return True, stage
+    return False, stage
+
+
+def try_greedy_left_move(stage):
+    for person in stage.people:
+        move_result = Stage.move1(stage, person, Constants.left_bank())
+        if move_result[0]:
+            hc_solution.append(f"Move person {person} to left bank")
+            stage = move_result[1]
+            return True, stage
+    return False, stage
+
+
+def next_neighbour(stage):
+    new_stage = copy.deepcopy(stage)
+
+    # first improvement - first good move
+    # best improvement = best move
+    # iterate in all moves - get first good move/best move
+    # good move? - at least one person is moved to the right
+
+    shuffled_people = list(new_stage.people)
+    random.shuffle(shuffled_people)
+    new_stage.people = shuffled_people
+
+    move_greedy_right_result = try_greedy_right_move(new_stage)
+    if not move_greedy_right_result[0]:
+        new_stage = try_not_greedy_right_move(new_stage)[1]
+    else:
+        new_stage = move_greedy_right_result[1]
+
+    if Stage.is_final(new_stage):
+        print(f"Sol :{hc_solution}")
+
+    move_greedy_left_result = try_greedy_left_move(new_stage)
+    if not move_greedy_left_result[0]:
+        new_stage = try_not_greedy_left_move(new_stage)[1]
+    else:
+        new_stage = move_greedy_left_result[1]
 
     return new_stage
 
 
+hc_solution = []
+
+
 def solve_via_hc(starting_stage):
-    num_of_restarts = 10
+    num_of_restarts = 1
 
     for iteration in range(num_of_restarts):
-        stage = starting_stage.copy()
-        new_stage = next_neighbour(stage)
-        solution = []
-        while new_stage is not None:
-            if Stage.is_valid(new_stage):
-                return solution
-            stage = new_stage
-            new_stage = next_neighbour(stage, solution)
+        stage = copy.deepcopy(starting_stage)
+        while stage is not None:
+            if Stage.is_final(stage):
+                print(hc_solution)
+                return hc_solution
+            stage = next_neighbour(stage)
+            print(hc_solution)
 
 
 if __name__ == '__main__':
-    problem = Stage(4)
+    problem = Stage(2)
     Stage.show(problem)
     #solve_via_bfs(problem, [])
-    solve_via_a_star(problem, [], 0)
+    #solve_via_a_star(problem, [], 0)
+    solve_via_hc(problem)
