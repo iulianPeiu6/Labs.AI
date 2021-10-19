@@ -406,8 +406,15 @@ def solve_via_hc(starting_stage):
 
 
 if __name__ == '__main__':
+    n = input("n=")
     problem = Stage(2)
     Stage.show(problem)
-    #solve_via_bfs(problem, [])
-    #solve_via_a_star(problem, [], 0)
-    solve_via_hc(problem)
+    method = input("method= ")
+    if method == "bk":
+        solve_via_bfs(problem, [])
+    elif method == "bfs":
+        solve_via_bfs(problem, [])
+    elif method == "a*":
+        solve_via_a_star(problem, [], 0)
+    else:
+        solve_via_hc(problem)
