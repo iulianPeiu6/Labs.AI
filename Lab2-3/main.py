@@ -377,8 +377,10 @@ def next_neighbour(stage):
     else:
         new_stage = move_greedy_right_result[1]
 
+    Stage.show(new_stage)
+    print(hc_solution)
     if Stage.is_final(new_stage):
-        print(f"Sol :{hc_solution}")
+        return new_stage
 
     move_greedy_left_result = try_greedy_left_move(new_stage)
     if not move_greedy_left_result[0]:
@@ -386,6 +388,8 @@ def next_neighbour(stage):
     else:
         new_stage = move_greedy_left_result[1]
 
+    Stage.show(new_stage)
+    print(hc_solution)
     return new_stage
 
 
@@ -402,7 +406,8 @@ def solve_via_hc(starting_stage):
                 print(hc_solution)
                 return hc_solution
             stage = next_neighbour(stage)
-            print(hc_solution)
+            Stage.show(stage)
+            #print(hc_solution)
 
 
 if __name__ == '__main__':
