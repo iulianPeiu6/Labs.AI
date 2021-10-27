@@ -8,6 +8,7 @@ class Game(object):
         self.num_of_slots = num_of_slots
         self.balls_pool = list(range(self.num_of_colors)) * self.num_of_same_color_balls
         self.correct_answer = self.create_random_answer()
+        print(f"DEBUG:\t Correct answer: {self.correct_answer}")
         self.answers = []
         self.last_answer = -1
         for slot in range(2 * self.num_of_colors):
@@ -35,14 +36,40 @@ class Game(object):
         self.last_answer += 1
         self.answers[self.last_answer] = list(answer)
 
+    def check_last_answer(self):
+        check_result = 0
+
+        correct_answer = list(self.correct_answer)
+        answer = list(self.answers[self.last_answer])
+
+        for ball in answer:
+            if ball in correct_answer:
+                check_result += 1
+                correct_answer.remove(ball)
+
+        return check_result
+
+    def run(self):
+        for stage in range(len(self.answers)):
+            while True:
+                answer = list(map(int, input(f"INFO:\t Insert {self.num_of_slots} balls. Balls: ").split()))
+                if len(answer) != self.num_of_slots:
+                    print(f"ERROR:\t {self.num_of_slots} balls are required")
+                else:
+                    self.create_answer(answer)
+                    if self.last_answer_is_correct():
+                        return "You won!"
+                    break
+            self.show()
+        return "You lost!"
+
+    def show(self):
+        print(f"INFO:\t Given answers: \r\n\t\t {self.answers}")
+        print(f"INFO:\t Balls Matched: {self.check_last_answer()}")
+
 
 if __name__ == '__main__':
     game = Game(8, 4, 4)
-    print(game.answers)
-    print(game.balls_pool)
-    print(game.correct_answer)
-    game.create_answer(game.create_random_answer())
-    print(game.answers)
-    print(game.ended())
+    print(f"INFO:\t {game.run()}")
 
 
