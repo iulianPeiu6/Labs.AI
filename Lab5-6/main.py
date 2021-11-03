@@ -37,20 +37,20 @@ class Game(object):
         self.answers[self.last_answer] = list(answer)
 
     def check_last_answer(self):
-        check_result = 0
-        check_pos_result = 0
+        color_matching_result = 0
+        position_matching_result = 0
 
         correct_answer = list(self.correct_answer)
         answer = list(self.answers[self.last_answer])
 
         for index in range(0, self.num_of_slots):
             if answer[index] in correct_answer:
-                check_result += 1
+                color_matching_result += 1
                 correct_answer.remove(answer[index])
             if answer[index] == self.correct_answer[index]:
-                check_pos_result += 1
+                position_matching_result += 1
 
-        return check_result, check_pos_result
+        return color_matching_result, position_matching_result
 
     def run(self):
         for stage in range(len(self.answers)):
