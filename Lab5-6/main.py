@@ -38,16 +38,19 @@ class Game(object):
 
     def check_last_answer(self):
         check_result = 0
+        check_pos_result = 0
 
         correct_answer = list(self.correct_answer)
         answer = list(self.answers[self.last_answer])
 
-        for ball in answer:
-            if ball in correct_answer:
+        for index in range(0, self.num_of_slots):
+            if answer[index] in correct_answer:
                 check_result += 1
-                correct_answer.remove(ball)
+                correct_answer.remove(answer[index])
+            if answer[index] == self.correct_answer[index]:
+                check_pos_result += 1
 
-        return check_result
+        return check_result, check_pos_result
 
     def run(self):
         for stage in range(len(self.answers)):
