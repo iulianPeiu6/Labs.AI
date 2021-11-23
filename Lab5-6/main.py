@@ -66,7 +66,7 @@ class Game(object):
         current_answer = self.create_random_answer()
 
         candidate_solutions = list(self.combinations)
-        # print(f"DEBUG:\t All possible answers: \r\n\t\t {candidate_solutions}")
+        print(f"DEBUG:\t All possible answers: \r\n\t\t {candidate_solutions}")
 
         while not won:
             self.create_answer(current_answer)
@@ -125,7 +125,7 @@ class Game(object):
             if current_code_cpy[index] == code[index]:
                 position_matching_result += 1
 
-        return position_matching_result, color_matching_result - position_matching_result
+        return position_matching_result
 
     def show(self):
         print(f"INFO:\t Given answers: \r\n\t\t {self.answers}")
@@ -161,6 +161,6 @@ def run_single_simulation():
 
 
 if __name__ == '__main__':
-    run_single_simulation()
-    #run_multiple_simulations()
+    #run_single_simulation()
+    run_multiple_simulations()
 
