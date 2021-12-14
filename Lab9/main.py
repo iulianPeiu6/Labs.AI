@@ -21,14 +21,13 @@ for i in range(number_of_episodes):
         j += 1
         action = np.argmax(Q[state, :] + np.random.randn(1, env.action_space.n) * (1./(i + 1)))
         new_state, reward, done, _ = env.step(action)
-        print(reward)
         Q[state, action] = Q[state, action] + alpha * (reward + gamma * np.max(Q[new_state, :]) - Q[state, action])
-        total_reward += reward
         if done:
+            total_reward = 1
             break
         state = new_state
     rev_list.append(total_reward)
     env.render()
-    print("Reward sum of all episodes: " + str(sum(rev_list) / number_of_episodes))
+    print(f"Reward:{total_reward}")
     print("Final Values Q table")
     print(Q)
