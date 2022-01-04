@@ -4,10 +4,12 @@ import lightrdf
 def super_topic_of(topic):
     doc = lightrdf.RDFDocument("Lab8-1.owl")
     for triple in doc.search_triples(None, None, None):
-        if "subClassOf" in triple[1] and topic in triple[2]:
-            print(triple[0].split("#")[1])
+        if "superTopicOf" in triple[1]:
+            if topic in triple[0]:  
+                print(triple[2].split("/")[-1])
 
-#super_topic_of("ArtificialIntelligence")
+super_topic_of("ambient_intelligent")
+
 
 
 #Exercise 3
@@ -46,7 +48,7 @@ def get_nouns_with_verb_between(from_file):
     f.close()
         
         
-get_nouns_with_verb_between("computer-science.txt")
+#get_nouns_with_verb_between("computer-science.txt")
 
 #Exercise 4
 
@@ -69,4 +71,4 @@ def filter_file_content(file):
                 break
             
 
-filter_file_content("result_4.txt")
+#filter_file_content("result_4.txt")

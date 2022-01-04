@@ -30,5 +30,3 @@ if __name__ == '__main__':
     stage.show_board()
     stage.next((1, 0))
     stage.show_board()
-
-
